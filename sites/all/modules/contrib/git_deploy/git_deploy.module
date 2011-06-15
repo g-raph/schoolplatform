@@ -104,35 +104,48 @@ function _git_deploy_version_alter(&$version, $git_dir, $file) {
   $repo = new Git($git_dir);
   $githash = $repo->revParse();
   $git_refs = $repo->getrefs();
-  $head_contents = file_get_contents($git_dir . DIRECTORY_SEPARATOR . 'HEAD');
-  if (strpos($head_contents, ':') == 3) {
+
+  // Check if a tag is present for the current branch tip.
+  foreach ($repo->refcache->refs as $name) {
+    $ref = $repo->getObject($name);
+    if ($ref->getType() == Git::OBJ_TAG && $ref->object == $githash) {
+      $git_tag = $ref->tag;
+      break;
+    }
+  }
+
+  // If no tag was found, default to the branch name.
+  if (!isset($git_tag)) {
+    $head_contents = file_get_contents($git_dir . DIRECTORY_SEPARATOR . 'HEAD');
+    if (strpos($head_contents, ':') == 3) {
       foreach ($git_refs as $branch => $ref) {
-      if ($githash === $ref) {
-        $branch_name = explode('/', $branch);
-        if ($branch_name[2] === "origin") {
-          $git_tag = $branch_name[3];
-          break;
-        }
-        elseif ($branch_name[1] === "heads") {
-          $git_tag = $branch_name[2];
-          break;
-        }
-        else {
-          break;
+        if ($githash === $ref) {
+          $branch_name = explode('/', $branch);
+          if ($branch_name[2] === "origin") {
+            $git_tag = $branch_name[3];
+            break;
+          }
+          elseif ($branch_name[1] === "heads") {
+            $git_tag = $branch_name[2];
+            break;
+          }
+          else {
+            break;
+          }
         }
       }
     }
-  }
-  else {
-    foreach ($git_refs as $tag => $ref) {
-      if ($githash === $ref) {
-        $tag_name = explode('/', $tag);
-        if ($tag_name[0] === "HEAD") {
-          continue;
-        }
-        else {
-          if ($tag_name[1] == "tags") {
-            $git_tag = $tag_name[2];
+    else {
+      foreach ($git_refs as $tag => $ref) {
+        if ($githash === $ref) {
+          $tag_name = explode('/', $tag);
+          if ($tag_name[0] === "HEAD") {
+            continue;
+          }
+          else {
+            if ($tag_name[1] == "tags") {
+              $git_tag = $tag_name[2];
+            }
           }
         }
       }
