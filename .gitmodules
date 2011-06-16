@@ -1,0 +1,3 @@
+[submodule "sites/all/libraries/glip"]
+	path = sites/all/libraries/glip
+	url = git://github.com/halstead/glip.git
