@@ -1,3 +1,6 @@
 [submodule "sites/all/libraries/glip"]
 	path = sites/all/libraries/glip
 	url = git://github.com/halstead/glip.git
+[submodule "sites/all/modules/contrib/views"]
+	path = sites/all/modules/contrib/views
+	url = http://git.drupal.org/project/views.git
