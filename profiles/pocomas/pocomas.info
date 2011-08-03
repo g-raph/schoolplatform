@@ -11,6 +11,7 @@ dependencies[] = dblog
 dependencies[] = features
 dependencies[] = field_ui
 dependencies[] = file
+dependencies[] = git_deploy
 dependencies[] = globalredirect
 dependencies[] = help
 dependencies[] = image
