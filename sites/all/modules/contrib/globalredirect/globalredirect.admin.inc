@@ -1,5 +1,5 @@
 <?php
-// $Id$
+// $Id: globalredirect.admin.inc,v 1.5 2010/07/13 00:46:27 njt1982 Exp $
 
 /**
  * @file

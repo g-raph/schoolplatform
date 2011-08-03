@@ -1,4 +1,4 @@
-# $Id$
+# $Id: de.po,v 1.2 2009/12/02 11:32:55 njt1982 Exp $
 #
 # LANGUAGE translation of Drupal (globalredirect.module)
 # Copyright YEAR NAME <EMAIL@ADDRESS>

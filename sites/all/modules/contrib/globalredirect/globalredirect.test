@@ -1,5 +1,5 @@
 <?php
-// $Id$
+// $Id: globalredirect.test,v 1.2 2010/07/13 00:46:27 njt1982 Exp $
 
 define('ERROR_MESSAGE',     'ERROR<br />Expected Path: !expected_path<br />Expected Status Code: !expected_status<br />Location: !location<br />Status: !status');
 define('SUCCESS_MESSAGE', 'SUCCESS<br />Expected Path: !expected_path<br />Expected Status Code: !expected_status<br />Location: !location<br />Status: !status');

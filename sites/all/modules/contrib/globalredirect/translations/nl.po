@@ -1,4 +1,4 @@
-# $Id$
+# $Id: nl.po,v 1.2 2009/12/02 11:32:55 njt1982 Exp $
 #
 # Dutch translation of Drupal (general)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
