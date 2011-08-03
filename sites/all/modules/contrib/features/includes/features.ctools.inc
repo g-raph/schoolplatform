@@ -77,10 +77,10 @@ function ctools_features_export_render($module, $data) {
     if ($info = _ctools_features_get_info($component)) {
 
       $code[] = '  if ($module == "'. $info['module'] .'" && $api == "'. $info['api'] .'") {';
-      $code[] = '    return array("version" => '. $info['current_version'] .');';
+      $code[] = '    return array("version" => "'. $info['current_version'] .'");';
       $code[] = '  }';
     }
-
+    ctools_include('plugins');
     $plugin_api_hook_name = ctools_plugin_api_get_hook($info['module'], $info['api']);
 
     if (key_exists($plugin_api_hook_name, $component_exports)) {
