@@ -37,6 +37,12 @@ function pocomas_install() {
   $filtered_html_format = (object) $filtered_html_format;
   filter_format_save($filtered_html_format);
 
+  // Enable Wysiwyg editor.
+  db_merge('wysiwyg')
+    ->key(array('format' => 'filtered_html'))
+    ->fields(array('editor' => 'ckeditor'))
+    ->execute();
+
   $full_html_format = array(
     'format' => 'full_html',
     'name' => 'Full HTML',
@@ -61,6 +67,13 @@ function pocomas_install() {
   );
   $full_html_format = (object) $full_html_format;
   filter_format_save($full_html_format);
+
+  // Enable Wysiwyg editor.
+  db_merge('wysiwyg')
+    ->key(array('format' => 'full_html'))
+    ->fields(array('editor' => 'ckeditor'))
+    ->execute();
+  cache_clear_all('wysiwyg_profiles', 'cache');
 
   // Enable some standard blocks.
   $default_theme = variable_get('theme_default', 'bartik');
