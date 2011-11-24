@@ -1,9 +1,8 @@
-name = Display suite exportables test
-description = Tests for exportables with Display Suite.
+name = "Forms"
+description = "Manage the layout of forms."
+core = "7.x"
 package = "Display suite"
-core = 7.x
-hidden = TRUE
-
+dependencies[] = ds
 ; Information added by drupal.org packaging script on 2011-10-31
 version = "7.x-1.4"
 core = "7.x"
