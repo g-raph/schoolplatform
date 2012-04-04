@@ -92,7 +92,7 @@ function honeypot_get_protected_forms() {
     }
     else {
       // Look up all the honeypot forms in the variables table.
-      $result = db_query("SELECT name FROM {variable} WHERE name LIKE '%honeypot_form_%'")->fetchCol();
+      $result = db_query("SELECT name FROM {variable} WHERE name LIKE 'honeypot_form_%'")->fetchCol();
       // Add each form that's enabled to the $forms array.
       foreach ($result as $variable) {
         if (variable_get($variable, 0)) {
@@ -153,6 +153,11 @@ function honeypot_add_form_protection(&$form, &$form_state, $options = array()) 
       '#default_value' => time(),
       '#element_validate' => array('_honeypot_time_restriction_validate'),
     );
+
+    // Disable page caching to make sure timestamp isn't cached.
+    if (user_is_anonymous()) {
+      $GLOBALS['conf']['cache'] = 0;
+    }
   }
 }
 
