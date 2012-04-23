@@ -31,6 +31,7 @@ dependencies[] = rdf
 dependencies[] = search
 dependencies[] = shortcut
 dependencies[] = strongarm
+dependencies[] = styleguide
 dependencies[] = taxonomy
 dependencies[] = token
 dependencies[] = toolbar
