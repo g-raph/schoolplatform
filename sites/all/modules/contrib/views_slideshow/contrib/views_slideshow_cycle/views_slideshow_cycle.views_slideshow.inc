@@ -5,9 +5,6 @@
  * The default options available with Views Slideshow: cycle.
  */
 
-/**
- * Implements hook_views_slideshow_slideshow_info().
- */
 function views_slideshow_cycle_views_slideshow_slideshow_info() {
   $options = array(
     'views_slideshow_cycle' => array(
@@ -33,9 +30,6 @@ function views_slideshow_cycle_views_slideshow_slideshow_info() {
   return $options;
 }
 
-/**
- * Implements hook_views_slideshow_option_definition().
- */
 function views_slideshow_cycle_views_slideshow_option_definition() {
   $options['views_slideshow_cycle'] = array(
     'contains' => array(
@@ -75,9 +69,6 @@ function views_slideshow_cycle_views_slideshow_option_definition() {
   return $options;
 }
 
-/**
- * Implements hook_views_slideshow_slideshow_slideshow_type_form().
- */
 function views_slideshow_cycle_views_slideshow_slideshow_type_form(&$form, &$form_state, &$view) {
   if (!$cycle_path = _views_slideshow_cycle_library_path()) {
     $form['views_slideshow_cycle']['no_cycle_js'] = array(
@@ -499,9 +490,6 @@ function views_slideshow_cycle_form_options_js($element, &$form_state, &$form) {
   return $element;
 }
 
-/**
- * Implements hook_views_slideshow_options_form_validate().
- */
 function views_slideshow_cycle_views_slideshow_options_form_validate(&$form, &$form_state, &$view) {
   if (!is_numeric($form_state['values']['style_options']['views_slideshow_cycle']['speed'])) {
     form_error($form['views_slideshow_cycle']['speed'], t('!setting must be numeric!', array('Speed')));
