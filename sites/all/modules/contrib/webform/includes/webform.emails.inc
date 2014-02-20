@@ -134,12 +134,13 @@ function theme_webform_email_add_form($variables) {
 
   // Add a default value to the custom e-mail textfield.
   $form['email_custom']['#attributes']['rel'] = t('email@example.com');
-  $form['email_custom']['#attributes']['class'] = array('webform-set-active', 'webform-default-value');
+  $form['email_custom']['#attributes']['class'][] = 'webform-set-active';
+  $form['email_custom']['#attributes']['class'][] = 'webform-default-value';
   $form['email_option']['custom']['#theme_wrappers'] = array('webform_inline_radio');
   $form['email_option']['custom']['#inline_element'] = drupal_render($form['email_custom']);
 
   // Render the component value.
-  $form['email_component']['#attributes']['class'] = array('webform-set-active');
+  $form['email_component']['#attributes']['class'][] = 'webform-set-active';
   $form['email_option']['component']['#theme_wrappers'] = array('webform_inline_radio');
   $form['email_option']['component']['#inline_element'] = drupal_render($form['email_component']);
 
@@ -309,7 +310,8 @@ function webform_email_edit_form($form, $form_state, $node, $email = array()) {
   );
 
   // Add the submit button.
-  $form['submit'] = array(
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save e-mail settings'),
     '#weight' => 20,
@@ -329,7 +331,7 @@ function theme_webform_email_edit_form($variables) {
   // Loop through fields, rendering them into radio button options.
   foreach (array('email', 'subject', 'from_address', 'from_name') as $field) {
     foreach (array('custom', 'component') as $option) {
-      $form[$field . '_' . $option]['#attributes']['class'] = array('webform-set-active');
+      $form[$field . '_' . $option]['#attributes']['class'][] = 'webform-set-active';
       $form[$field . '_option'][$option]['#theme_wrappers'] = array('webform_inline_radio');
       $form[$field . '_option'][$option]['#inline_element'] = drupal_render($form[$field . '_' . $option]);
     }
@@ -403,7 +405,7 @@ function webform_email_edit_form_submit($form, &$form_state) {
   // Merge the e-mail, name, address, and subject options into single values.
   $email = array(
     'eid' => $form_state['values']['eid'],
-    'nid' => $form_state['values']['node']->nid,
+    'nid' => $node->nid,
   );
 
   foreach (array('email', 'from_name', 'from_address', 'subject') as $field) {
@@ -437,7 +439,7 @@ function webform_email_edit_form_submit($form, &$form_state) {
   // We actually maintain an *exclusion* list, so any new components will
   // default to being included in the %email_values token until unchecked.
   $included = array_keys(array_filter((array) $form_state['values']['components']));
-  $excluded = array_diff(array_keys($form_state['values']['node']->webform['components']), $included);
+  $excluded = array_diff(array_keys($node->webform['components']), $included);
   $email['excluded_components'] = $excluded;
 
   if (empty($form_state['values']['eid'])) {
@@ -449,7 +451,12 @@ function webform_email_edit_form_submit($form, &$form_state) {
     webform_email_update($email);
   }
 
-  $form_state['redirect'] = array('node/' . $form_state['values']['node']->nid . '/webform/emails');
+  // Clear the entity cache if Entity Cache module is installed.
+  if (module_exists('entitycache')) {
+    cache_clear_all($node->nid, 'cache_entity_node');
+  }
+
+  $form_state['redirect'] = array('node/' . $node->nid . '/webform/emails');
 }
 
 /**
@@ -479,7 +486,7 @@ function webform_email_delete_form($form, $form_state, $node, $email) {
 }
 
 /**
- * Submit handler for webform_component_delete_form().
+ * Submit handler for webform_email_delete_form().
  */
 function webform_email_delete_form_submit($form, &$form_state) {
   // Delete the e-mail settings.
@@ -492,7 +499,12 @@ function webform_email_delete_form_submit($form, &$form_state) {
   unset($node->webform['emails'][$email['eid']]);
   webform_check_record($node);
 
-  $form_state['redirect'] = 'node/' . $form_state['values']['node']->nid . '/webform/emails';
+  // Clear the entity cache if Entity Cache module is installed.
+  if (module_exists('entitycache')) {
+    cache_clear_all($node->nid, 'cache_entity_node');
+  }
+
+  $form_state['redirect'] = 'node/' . $node->nid . '/webform/emails';
 }
 
 /**

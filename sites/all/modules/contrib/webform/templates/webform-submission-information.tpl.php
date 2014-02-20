@@ -6,10 +6,10 @@
  *
  * Available variables:
  * - $node: The node object for this webform.
+ * - $mode: Either "form" or "display". May be other modes provided by other
+ *          modules, such as "print" or "pdf".
  * - $submission: The contents of the webform submission.
  * - $account: The user that submitted the form.
- * - $mode: The mode of the submission being viewed. May be one of "display",
- *   "form", "print", or "pdf".
  */
 ?>
 <fieldset class="webform-submission-info clearfix">
@@ -18,7 +18,7 @@
   <div class="webform-submission-info-text">
     <div><?php print t('Form: !form', array('!form' => l($node->title, 'node/' . $node->nid))); ?></div>
     <div><?php print t('Submitted by !name', array('!name' => theme('username', array('account' => $account)))); ?></div>
-    <div><?php print format_date($submission->submitted, 'large'); ?></div>
+    <div><?php print format_date($submission->submitted, 'long'); ?></div>
     <div><?php print $submission->remote_addr; ?></div>
   </div>
 </fieldset>
