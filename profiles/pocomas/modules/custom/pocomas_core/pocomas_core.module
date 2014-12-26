@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * Main functions and hook implementations for the Pocomas Core module.
+ */
+
+/**
+ * Implements hook_update_projects_alter().
+ */
+function pocomas_core_update_projects_alter(&$projects) {
+  // Do not attempt to retrieve updates for our custom features.
+  $modules = array(
+    'pocomas_block',
+    'pocomas_products',
+    'pocomas_slideshow',
+  );
+  foreach ($modules as $module) {
+    unset($projects[$module]);
+  }
+}

@@ -18,18 +18,3 @@ function pocomas_form_install_configure_form_alter(&$form, $form_state) {
   // Set Europe/Brussels as the default time zone.
   $form['server_settings']['date_default_timezone']['#default_value'] = 'Europe/Brussels';
 }
-
-/**
- * Implements hook_update_projects_alter().
- */
-function pocomas_update_projects_alter(&$projects) {
-  // Do not attempt to retrieve updates for our custom features.
-  $modules = array(
-    'pocomas_block',
-    'pocomas_products',
-    'pocomas_slideshow',
-  );
-  foreach ($modules as $module) {
-    unset($projects[$module]);
-  }
-}
