@@ -440,3 +440,10 @@ function pocomas_install() {
   variable_set('admin_theme', 'seven');
   variable_set('node_admin_theme', '1');
 }
+
+/**
+ * Enable the Pocomas Core module.
+ */
+function pocomas_update_7000() {
+  module_enable(array('pocomas_core'));
+}
