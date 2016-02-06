@@ -8,10 +8,18 @@
 function views_bulk_operations_delete_action_info() {
   return array(
     'views_bulk_operations_delete_item' => array(
-      'type' => 'system',
+      'type' => 'entity',
       'label' => t('Delete item'),
       'configurable' => FALSE,
-      'access operation' => VBO_ACCESS_OP_DELETE,
+      'behavior' => array('deletes_property'),
+      'triggers' => array('any'),
+    ),
+    'views_bulk_operations_delete_revision' => array(
+      'type' => 'entity',
+      'label' => t('Delete revision'),
+      'configurable' => FALSE,
+      'behavior' => array('deletes_property'),
+      'triggers' => array('any'),
     ),
   );
 }
@@ -20,14 +28,11 @@ function views_bulk_operations_delete_item($entity, $context) {
   $info = entity_get_info($context['entity_type']);
   $entity_id = $entity->{$info['entity keys']['id']};
 
-  if (module_exists('entity')) {
-    entity_delete($context['entity_type'], $entity_id);
-  }
-  else {
-    // This works for core entity types, so there's no need to depend on Entity API.
-    $delete_function = $context['entity_type'] . '_delete';
-    if (function_exists($delete_function)) {
-      $delete_function($entity_id);
-    }
-  }
+  entity_delete($context['entity_type'], $entity_id);
+}
+
+function views_bulk_operations_delete_revision($entity, $context) {
+  $info = entity_get_info($context['entity_type']);
+  $revision_id = $entity->{$info['entity keys']['revision']};
+  entity_revision_delete($context['entity_type'], $revision_id);
 }
