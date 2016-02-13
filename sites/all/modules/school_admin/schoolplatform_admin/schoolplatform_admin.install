@@ -1,0 +1,13 @@
+<?php
+
+function schoolplatform_admin_install(){
+  module_enable(array('admin_menu'));
+  module_disable(array('toolbar'));
+}
+/**
+ * Enable admin_menu
+ */
+function schoolplatform_admin_update_7001(){
+  module_enable(array('admin_menu'));
+  module_disable(array('toolbar'));
+}

@@ -1,0 +1,43 @@
+<?php
+/**
+ * @file
+ * Drupal needs this blank file.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function schoolplatform_sub_menu() {
+  $site_name = variable_get('site_name','School');
+  $items['admin/school'] = array(
+    'title' => $site_name . ' settings',
+    'description' => $site_name . ' settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('schoolplatform_sub_manage_page'),
+    'access arguments' => array('administer nodes'),
+  );
+  $items['admin/config/school'] = array(
+    'title' => $site_name . ' admin settings',
+    'description' => 'admin settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('schoolplatform_sub_admin_page'),
+    'access arguments' => array('administer theme switching'),
+  );
+  return $items;
+}
+
+
+/**
+ * Subsite management page.
+ *
+ */
+function schoolplatform_sub_manage_page(){
+
+}
+/**
+ * Subsite admin settings page.
+ *
+ */
+function schoolplatform_sub_admin_page(){
+
+}
