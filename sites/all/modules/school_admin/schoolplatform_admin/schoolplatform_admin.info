@@ -25,4 +25,5 @@ dependencies[] = views_bulk_operations
 dependencies[] = views_ui
 dependencies[] = webform
 dependencies[] = wysiwyg
+dependencies[] = elysia_cron
 features[features_api][] = api:1
