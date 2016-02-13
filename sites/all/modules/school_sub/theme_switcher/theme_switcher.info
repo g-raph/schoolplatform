@@ -3,4 +3,3 @@ name = "Theme switcher"
 description = "Theme switcher"
 package = "school"
 configure = config/school/theme_switcher
-dependencies[] = themekey

@@ -22,17 +22,29 @@ function theme_switcher_menu() {
   return $items;
 }
 
+/**
+* Implements hook_menu_get_item_alter().
+*/
+function theme_switcher_menu_get_item_alter(&$router_item, $path, $original_map) {
+  if(!path_is_admin($router_item['path'])) {
+    $router_item['theme_callback'] = 'theme_switcher_menu_theme_callback';
+  }
+}
 
+function theme_switcher_menu_theme_callback() {
+  $theme = variable_get('school_theme', '');
+  return $theme;
+}
 
 /**
  * Set the theme
  *
  */
 function theme_switcher_custom_theme() {
-  global $theme_key;
-  //if ($some_condition_is_true) {
-    return variable_get('school_theme', $theme_key);
-  //}
+  if(!path_is_admin(current_path())) {
+    $theme = variable_get('school_theme', $theme_key);
+    return $theme;
+  }
 }
 
 
@@ -43,6 +55,7 @@ function theme_switcher_settings_page($form, &$form_state) {
   global $base_url;
   global $theme_key;
   $options = variable_get('school_enabled_themes',array());
+
   $options = array_filter($options);
   $form['school_theme'] = array(
     '#type' => 'select',
@@ -64,12 +77,13 @@ function theme_switcher_settings_page($form, &$form_state) {
 
 
 /**
- * Theme switching page
+ * Theme switching admoinistration page
  */
 function theme_switcher_settings_admin_page($form, &$form_state) {
   global $base_url;
   $themes = list_themes();
-  foreach($themes as $name => $theme) {
+  $custom_themes = array_filter($themes, 'drupal_theme_access');
+  foreach($custom_themes as $name => $theme) {
     $options[$name] = $theme->name;
   }
   $theme_options = array();

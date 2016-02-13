@@ -8,7 +8,7 @@
  * Implements hook_menu().
  */
 function schoolplatform_sub_menu() {
-  $site_name = variable_get('site_name','School');
+  $site_name = variable_get('site_name', 'School');
   $items['admin/school'] = array(
     'title' => $site_name . ' settings',
     'description' => $site_name . ' settings',
