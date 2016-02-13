@@ -55,10 +55,20 @@ function theme_switcher_settings_page($form, &$form_state) {
   global $base_url;
   global $theme_key;
   $options = variable_get('school_enabled_themes',array());
-
+  $themes = list_themes();
+  $screenshots = array();
   $options = array_filter($options);
+  $samples = 'TODO: add input hover image shower here.';
+  foreach($themes as $name =>  $theme) {
+    if (in_array($name, $options)) {
+      $samples = $samples . '<li><img rel="'.$name.'" style="width:100px;"src="/'.$theme->info['screenshot'].'"></li>';
+      $pos = array_search($name, $options);
+      $screenshots[$pos] = '<li><img style="width:100px;"src="/'.$theme->info['screenshot'].'"></li>';
+    }
+  }
+
   $form['school_theme'] = array(
-    '#type' => 'select',
+    '#type' => 'radios',
     '#title' => t('Select Theme'),
     '#default_value' => variable_get('school_theme',$theme_key),
     '#options' => $options,
@@ -66,6 +76,9 @@ function theme_switcher_settings_page($form, &$form_state) {
       'placeholder' => '',
     ),
   );
+  $form['theme_examples'] = array(
+      '#markup' => $samples
+    );
   if (user_access('administer features')) {
     $form['link_to_admin'] = array(
       '#markup' => '<a href="/admin/config/school/theme_switcher_admin">Manage themes that can be enabled here.</a>'
