@@ -1,0 +1,207 @@
+<?php
+/**
+ * @file
+ * Drupal needs this blank file.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function schoolplatform_admin_menu() {
+  $items['add_school'] = array(
+    'title' => 'Add school',
+    //'description' => ' settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('schoolplatform_admin_add_school'),
+    'access arguments' => array('administer nodes'),
+  );
+  $items['admin/schools/%'] = array(
+    'title' => ' administer shool',
+    //'description' => 'admin settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('schoolplatform_sub_admin_page'),
+    'access arguments' => array('administer theme switching'),
+  );
+  return $items;
+}
+
+
+/**
+ * Add school form
+ *
+ */
+function schoolplatform_admin_add_school(){
+  $form = array();
+  $form['title'] = array(
+    '#markup' => '<h2>School details</h2>',
+  );
+  $form['info'] = array(
+    '#markup' => '<blockquote>All these settings can be changed later.<br>We need something to get you started.</blockquote>',
+  );
+  $form['school_url'] = array(
+    '#type' => 'textfield',
+    '#default_value' => 'schoolname.schoolplatform.dev',
+    '#title' => 'Url',
+    '#required' => true,
+  );
+  $form['school_prefix'] = array(
+    '#type' => 'textfield',
+    '#default_value' => 'prefix',
+    '#title' => 'Prefix',
+    '#required' => true,
+  );
+  $form['school_name'] = array(
+    '#type' => 'textfield',
+    '#default_value' => 'The school name.',
+    '#title' => 'Name',
+    '#required' => true,
+  );
+  $form['school_slogan'] = array(
+    '#type' => 'textfield',
+    '#default_value' => 'The school slogan.',
+    '#title' => 'Slogan',
+    '#required' => true,
+  );
+  $form['school_adres'] = array(
+    '#type' => 'textarea',
+    '#default_value' => 'The '.PHP_EOL.'school'.PHP_EOL.'address.',
+    '#title' => 'Full address',
+    '#required' => true,
+  );
+  $form['contact'] = array(
+    '#markup' => '<h2>Admin details</h2>',
+  );
+  $form['contact_email'] = array(
+    '#type' => 'textfield',
+    '#default_value' => '',
+    '#title' => 'Email',
+    '#required' => true,
+  );
+  $form['contact_password'] = array(
+    '#type' => 'password',
+    '#default_value' => '',
+    '#title' => 'Password',
+    '#required' => true,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'submit',
+    //'#title' => 'School url',
+  );
+  $form['#submit'][] = 'schoolplatform_admin_add_school_submit';
+  return $form;
+}
+
+/**
+ * Handle create subsite submit.
+ */
+function schoolplatform_admin_add_school_submit($form, $form_state){
+  var_dump($form_state['values']);
+  $v = $form_state['values'];
+  $school = new School();
+  $school->url = $v['school_url'];
+  $school->prefix = $v['school_prefix'];
+  $school->name = $v['school_name'];
+  $school->slogan = $v['school_slogan'];
+  $school->adres = $v['school_adres'];
+  $contact = new Contact();
+  $contact->email = $v['contact_email'];
+  $contact->pass = $v['contact_password'];
+  $school->contact = $contact;
+  $school->createDrupalSite();
+  $queue = DrupalQueue::get('createSite');
+  $queue->createItem($school);
+  drupal_set_message('Site in construction. We\'ll mail you when it\'s ready.');
+  variable_get('thanks_page', '<front>');
+  drupal_goto('thanks_page',array('query' => array('under_construction' => '1')));
+}
+
+
+/**
+ * Cronapi.
+ */
+function schoolplatform_admin_crontab($op, $job = NULL) {
+  $items['schoolplatform_admin_create_site_from_queue'] = array(
+    'description' => 'Create sites from queue',
+    'rule' => '* * * * *', // Every minute
+  );
+  return $items;
+}
+
+function schoolplatform_admin_create_site_from_queue(){
+  $queue = DrupalQueue::get('createSite');
+  while($item = $queue->claimItem()) {
+    //CREATE SITE FROM DB
+    $queue->deleteItem($item);
+  }
+}
+
+
+/**
+ * Subsite admin settings page.
+ *
+ */
+function schoolplatform_sub_admin_page() {
+
+}
+
+Class School {
+  public $url;
+  public $prefix;
+  public $name;
+  public $slogan;
+  public $adres;
+  public $contact;
+  function createDrupalSite() {
+    if ($this->drupalSiteExists()) {
+      throw new Exception('Site already Exists.' . $this->siteFolder());
+      return true;
+    }
+    if ($this->createSiteFolder()) {
+      $this->createSettingsFile();
+    }
+  }
+  function siteFolder() {
+    return $_SERVER['DOCUMENT_ROOT'] . '/sites/' . $this->url;
+  }
+  function createSiteFolder() {
+    $res = mkdir($this->siteFolder());
+    if(!$res) {
+      throw new Exception('Could not create folder. <br>' . $this->siteFolder());
+    }
+    return $res;
+  }
+  function createSettingsFile() {
+    $dest = $this->settingsFile();
+    $source = $this->templateSettingsFile();
+    $res = copy($source, $dest);
+    if(!$res) {
+      throw new Exception('Could not create settings file. <br>' . $this->settingsFile());
+    }
+    $str = file_get_contents($dest);
+    $str = str_replace("%prefix%", $this->prefix, $str);
+    file_put_contents($dest, $str);
+    return $res;
+  }
+  function templateSettingsFile() {
+    return $_SERVER['DOCUMENT_ROOT'] . '/sites/template/template.settings.php';
+  }
+  function settingsFile() {
+    return $_SERVER['DOCUMENT_ROOT'] . '/sites/' . $this->url . '/settings.php';
+  }
+  function drupalSiteExists() {
+    $folder = $this->siteFolder();
+    if (!file_exists($folder)) {
+      return FALSE;
+    }
+    $settings_file = $this->settingsFile();
+    if (!file_exists($settings_file)) {
+      throw new Exception('site folder exists, settings file does not exist. <br>' . $settings_file);
+    }
+    return true;
+  }
+}
+Class Contact{
+  public $email;
+  public $pass;
+}

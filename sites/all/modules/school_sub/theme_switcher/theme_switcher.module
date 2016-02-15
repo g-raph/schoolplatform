@@ -1,0 +1,115 @@
+<?php
+
+
+/**
+ * Implements hook_menu().
+ */
+function theme_switcher_menu() {
+  $items['admin/school/theme_switcher'] = array(
+    'title' => 'Theme',
+    'description' => 'Switch theme',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('theme_switcher_settings_page'),
+    'access arguments' => array('administer nodes'),
+  );
+  $items['admin/config/school/theme_switcher_admin'] = array(
+    'title' => 'Theme switching admin',
+    'description' => 'Switch theme',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('theme_switcher_settings_admin_page'),
+    'access arguments' => array('administer theme switching'),
+  );
+  return $items;
+}
+
+/**
+* Implements hook_menu_get_item_alter().
+*/
+function theme_switcher_menu_get_item_alter(&$router_item, $path, $original_map) {
+  if(!path_is_admin($router_item['path'])) {
+    $router_item['theme_callback'] = 'theme_switcher_menu_theme_callback';
+  }
+}
+
+function theme_switcher_menu_theme_callback() {
+  $theme = variable_get('school_theme', '');
+  return $theme;
+}
+
+/**
+ * Set the theme
+ *
+ */
+function theme_switcher_custom_theme() {
+  if(!path_is_admin(current_path())) {
+    $theme = variable_get('school_theme', $theme_key);
+    return $theme;
+  }
+}
+
+
+/**
+ * Theme switching page
+ */
+function theme_switcher_settings_page($form, &$form_state) {
+  global $base_url;
+  global $theme_key;
+  $options = variable_get('school_enabled_themes',array());
+  $themes = list_themes();
+  $screenshots = array();
+  $options = array_filter($options);
+  $samples = 'TODO: add input hover image shower here.';
+  foreach($themes as $name =>  $theme) {
+    if (in_array($name, $options)) {
+      $samples = $samples . '<li><img rel="'.$name.'" style="width:100px;"src="/'.$theme->info['screenshot'].'"></li>';
+      $pos = array_search($name, $options);
+      $screenshots[$pos] = '<li><img style="width:100px;"src="/'.$theme->info['screenshot'].'"></li>';
+    }
+  }
+
+  $form['school_theme'] = array(
+    '#type' => 'radios',
+    '#title' => t('Select Theme'),
+    '#default_value' => variable_get('school_theme',$theme_key),
+    '#options' => $options,
+    '#attributes' => array(
+      'placeholder' => '',
+    ),
+  );
+  $form['theme_examples'] = array(
+      '#markup' => $samples
+    );
+  if (user_access('administer features')) {
+    $form['link_to_admin'] = array(
+      '#markup' => '<a href="/admin/config/school/theme_switcher_admin">Manage themes that can be enabled here.</a>'
+    );
+  }
+
+  return system_settings_form($form);
+}
+
+
+/**
+ * Theme switching admoinistration page
+ */
+function theme_switcher_settings_admin_page($form, &$form_state) {
+  global $base_url;
+  $themes = list_themes();
+  $custom_themes = array_filter($themes, 'drupal_theme_access');
+  foreach($custom_themes as $name => $theme) {
+    $options[$name] = $theme->name;
+  }
+  $theme_options = array();
+  $form['school_enabled_themes'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Enable themes'),
+    '#default_value' => variable_get('school_enabled_themes',array()),
+    '#options' => $options,
+    '#checkboxes' => true,
+    '#attributes' => array(
+      'placeholder' => '',
+    ),
+  );
+
+  return system_settings_form($form);
+}
