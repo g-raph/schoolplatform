@@ -10,7 +10,10 @@ $sites['schoolplatform.dev'] = 'schoolplatform';
 //Sites folders are dynamic.
 //Allows them to add Own domain.
 $cwd = getcwd();
-$sitesList = scandir ( $cwd . '/sites/' );
+$sitesList = array();
+if (file_exists($cwd . '/sites/')) {
+  $sitesList = scandir ( $cwd . '/sites/' );
+}
 $ignored = array('.','..','all','default','template');
 
 foreach($sitesList as $site) {
