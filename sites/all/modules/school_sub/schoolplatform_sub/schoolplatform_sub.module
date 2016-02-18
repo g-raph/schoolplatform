@@ -32,7 +32,131 @@ function schoolplatform_sub_menu() {
  *
  */
 function schoolplatform_sub_manage_page(){
+  $form = array();
+  $form['school'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('school settings'),
+    '#weight' => 0,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['school']['school_school_hours'] = array(
+    '#title' => t('School hours'),
+    '#type' => 'textarea',
+    '#description' => t('School hours'),
+    '#default_value' => variable_get('school_school_hours', 'Example school hours'.PHP_EOL.'monday: 6:6'),
+  );
+  $form['school']['school_school_hours_front'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show school hours on frontpage'),
+    '#default_value' => variable_get('school_school_hours_front', TRUE),
+  );
+  $form['school']['school_school_hours_other'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show school hours on other pages'),
+    '#default_value' => variable_get('school_school_hours_other', TRUE),
+  );
 
+
+  $form['domain'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Domain settings'),
+    '#weight' => 1,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['domain']['couple_extra_domain'] = array(
+    '#title' => t('Couple extra domain to this site.'),
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('couple_extra_domain', FALSE),
+  );
+  $form['domain']['extra_domain'] = array(
+    '#title' => t('Domain'),
+    '#type' => 'textfield',
+    '#description' => t('Add your own www.domain.com here.'),
+    '#default_value' => variable_get('extra_domain', ''),
+  );
+
+  $form['themes_colors'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Theme and color settings'),
+    '#weight' => 2,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['themes_colors']['theme_switch'] = array(
+    '#markup' => t('<a href="/admin/school/theme_switcher">Switch theme</a>'),
+  );
+  $form['themes_colors']['school_color_main'] = array(
+    '#title' => t('School main color'),
+    '#type' => 'textfield',
+    '#description' => t('Select the main school color here. This is for the accents.'),
+    '#default_value' => variable_get('school_color_main', 'ffffff'),
+  );
+  $form['themes_colors']['school_logo_fid'] = array(
+    '#title' => t('School logo'),
+    '#type' => 'managed_file',
+    '#description' => t('Select the school logo.'),
+    '#default_value' => variable_get('school_logo_fid', ''),
+    '#upload_location' => 'public://school_logos/',
+  );
+
+
+  $form['adress'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Address and google maps settings'),
+    '#weight' => 3,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['adress']['school_address'] = array(
+    '#title' => t('School address'),
+    '#type' => 'textarea',
+    '#description' => t('enter the street address of the school here.'),
+    '#default_value' => variable_get('school_address', 'The school address'),
+  );
+  $form['adress']['show_school_address'] = array(
+    '#title' => t('Show address on all pages'),
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('show_school_address', TRUE),
+  );
+  $form['adress']['show_school_address_gmap'] = array(
+    '#title' => t('Show google map on contact page.'),
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('show_school_address_gmap', TRUE),
+  );
+  if (variable_get('show_school_address_gmap', TRUE)) {
+    $form['adress']['example'] = array(
+      '#markup' => 'GOOGLE MAP COMES HERE',
+    );
+  }
+  $form['frontpage'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('frontpage settings'),
+    '#weight' => 4,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['frontpage']['frontpage_show_slider'] = array(
+    '#title' => t('Show slideshow on frontpage'),
+    '#type' => 'checkbox',
+    //'#description' => t('Show slideshow on frontpage'),
+    '#default_value' => variable_get('frontpage_show_slider', TRUE),
+  );
+  $form['agenda'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Agenda settings'),
+    '#weight' => 5,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['agenda']['agenda_ical_feed'] = array(
+    '#title' => t('Allow agenda Ical feed'),
+    '#type' => 'checkbox',
+    '#description' => t('This allows people to put the school agenda into their google agenda or office agendas'),
+    '#default_value' => variable_get('agenda_ical_feed', TRUE),
+  );
+  return system_settings_form($form);
 }
 /**
  * Subsite admin settings page.
