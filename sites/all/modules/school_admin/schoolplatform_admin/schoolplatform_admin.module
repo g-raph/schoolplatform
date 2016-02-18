@@ -74,10 +74,10 @@ function schoolplatform_admin_add_school(){
     '#title' => 'Url',
     '#required' => true,
   );
-  $form['school_prefix'] = array(
+  $form['school_machine_name'] = array(
     '#type' => 'textfield',
-    '#default_value' => 'prefix',
-    '#title' => 'Prefix',
+    '#default_value' => 'machine_name',
+    '#title' => 'Machine_name',
     '#required' => true,
   );
   $form['school_name'] = array(
@@ -130,7 +130,7 @@ function schoolplatform_admin_add_school_submit($form, $form_state){
   $v = $form_state['values'];
   $school = new School();
   $school->url = $v['school_url'];
-  $school->prefix = $v['school_prefix'];
+  $school->machine_name = $v['school_machine_name'];
   $school->name = $v['school_name'];
   $school->slogan = $v['school_slogan'];
   $school->adres = $v['school_adres'];
@@ -162,22 +162,88 @@ function schoolplatform_admin_preprocess_html($variables){
 /**
  * Cronapi.
  */
-function schoolplatform_admin_crontab($op, $job = NULL) {
+function schoolplatform_admin_cronapi($op, $job = NULL) {
   $items['schoolplatform_admin_create_site_from_queue'] = array(
     'description' => 'Create sites from queue',
     'rule' => '* * * * *', // Every minute
   );
   return $items;
 }
-
+/**
+ *
+ */
 function schoolplatform_admin_create_site_from_queue(){
   $queue = DrupalQueue::get('createSite');
-  while($item = $queue->claimItem()) {
-    //CREATE SITE FROM DB
+  $max = variable_get('schoolplatform_admin_create_sites_per_cron',1);
+  $i = 0;
+  var_dump($max);
+  var_dump($i);
+  while ($i < $max) {
+    $item = $queue->claimItem('20');
+    $school = $item->data;
+    $host = 'localhost';
+    $db_name = 'sp_' . $school->machine_name;
+    _schoolplatform_admin_create_db($db_name);
+    $db_user = $school->machine_name;
+    watchdog('schoolplatform', 'Start creation of site :site <pre>:data</pre>',
+      array(':site' => $school->machine_name, ':data' => print_r($school, TRUE)),
+      WATCHDOG_NOTICE);
+    $db_pass = _schoolplatform_admin_generate_pass($school->machine_name);
+    _schoolplatform_admin_create_user($db_name, $db_user, $host, $db_pass);
+    $s = new School();
+    watchdog('schoolplatform', 'DB and user created :user :db <pre>:data</pre>',
+      array(':user' => $db_user, ':db' => $db_name, ':data' => print_r($school, TRUE)),
+      WATCHDOG_NOTICE);
+    _schoolplatform_admin_import_data($db_name, $db_user, $db_pass, $host, $s->sqlFile());
+    watchdog('schoolplatform', 'Data imported!<pre>:data</pre>',
+      array(':user' => $db_user, ':db' => $db_name, ':data' => print_r($school, TRUE)),
+      WATCHDOG_NOTICE);
+    // Create database
+    // Create user
+    // import template
+    // set admin user
     $queue->deleteItem($item);
+    $i ++;
   }
+  die('cton');
 }
 
+function _schoolplatform_admin_generate_pass($user){
+  return 'pass';
+}
+
+/**
+ * create database
+ */
+function _schoolplatform_admin_create_db($school){
+  $create = 'CREATE DATABASE  ' . $school;
+  $res = db_query($create, array());
+}
+
+/**
+ * create user
+ */
+function _schoolplatform_admin_create_user($db_name, $school, $host , $pass){
+  $create = 'CREATE USER :user@:host IDENTIFIED BY :pass;';
+  $res = db_query($create, array(':user' => $school, ':host' => $host,  ':pass' => $pass));
+  $grant = "GRANT ALL PRIVILEGES ON ".$db_name.".* TO :user@:host";
+  $res = db_query($grant, array(':user' => $school, ':host' => $host));
+  $res = db_query('FLUSH PRIVILEGES');
+}
+
+/**
+ * Import full drupal site
+ */
+function _schoolplatform_admin_import_data($db, $db_user, $db_pass, $host,  $file){
+  $dbconn = mysql_connect($host,$db_user,$db_pass);
+  mysql_select_db($db,$dbconn);
+  if ($fp = file_get_contents($file)) {
+    $var_array = explode(';',$fp);
+    foreach($var_array as $value) {
+      mysql_query($value . ';', $dbconn);
+    }
+  }
+}
 
 /**
  * Subsite admin settings page.
@@ -189,7 +255,7 @@ function schoolplatform_sub_admin_page() {
 
 Class School {
   public $url;
-  public $prefix;
+  public $machine_name;
   public $name;
   public $slogan;
   public $adres;
@@ -221,12 +287,15 @@ Class School {
       throw new Exception('Could not create settings file. <br>' . $this->settingsFile());
     }
     $str = file_get_contents($dest);
-    $str = str_replace("%prefix%", $this->prefix, $str);
+    //$str = str_replace("%prefix%", $this->prefix, $str);
     file_put_contents($dest, $str);
     return $res;
   }
   function templateSettingsFile() {
     return $_SERVER['DOCUMENT_ROOT'] . '/sites/template/template.settings.php';
+  }
+  function sqlFile() {
+    return $_SERVER['DOCUMENT_ROOT'] . '/sites/template/template.sql';
   }
   function settingsFile() {
     return $_SERVER['DOCUMENT_ROOT'] . '/sites/' . $this->url . '/settings.php';

@@ -11,7 +11,7 @@ $databases = array (
       'host' => 'localhost',
       'port' => '',
       'driver' => 'mysql',
-      'prefix' => '%prefix%_',
+      'prefix' => '',
     ),
   ),
 );
