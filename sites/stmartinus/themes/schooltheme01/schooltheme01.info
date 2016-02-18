@@ -1,0 +1,30 @@
+; -----------------------------------------------------------
+; Description
+; -----------------------------------------------------------
+name = Scholenplatform theme 01
+description = Scholenplatform theme 01
+core = 7.x
+engine = phptemplate
+
+; -----------------------------------------------------------
+; Stylesheets
+; -----------------------------------------------------------
+stylesheets[all][] = css/custom.css
+
+; -----------------------------------------------------------
+; JS
+; -----------------------------------------------------------
+scripts[] = js/flexslider.js
+scripts[] = js/touchSwipe.js
+scripts[] = js/custom.js
+
+; -----------------------------------------------------------
+; Regions
+; -----------------------------------------------------------
+regions[header_top] = Header Top
+regions[header_bottom] = Header Bottom
+regions[menu_top] = Menu Top
+regions[sidebar_left] = Left sidebar
+regions[content] = Content
+regions[footer_top] = Footer Top
+regions[footer_bottom] = Footer Bottom
