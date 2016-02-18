@@ -176,8 +176,6 @@ function schoolplatform_admin_create_site_from_queue(){
   $queue = DrupalQueue::get('createSite');
   $max = variable_get('schoolplatform_admin_create_sites_per_cron',1);
   $i = 0;
-  var_dump($max);
-  var_dump($i);
   while ($i < $max) {
     $item = $queue->claimItem('20');
     $school = $item->data;
@@ -190,22 +188,26 @@ function schoolplatform_admin_create_site_from_queue(){
       WATCHDOG_NOTICE);
     $db_pass = _schoolplatform_admin_generate_pass($school->machine_name);
     _schoolplatform_admin_create_user($db_name, $db_user, $host, $db_pass);
-    $s = new School();
+
     watchdog('schoolplatform', 'DB and user created :user :db <pre>:data</pre>',
       array(':user' => $db_user, ':db' => $db_name, ':data' => print_r($school, TRUE)),
       WATCHDOG_NOTICE);
-    _schoolplatform_admin_import_data($db_name, $db_user, $db_pass, $host, $s->sqlFile());
+    _schoolplatform_admin_import_data($db_name, $db_user, $db_pass, $host, $school->sqlFile());
     watchdog('schoolplatform', 'Data imported!<pre>:data</pre>',
       array(':user' => $db_user, ':db' => $db_name, ':data' => print_r($school, TRUE)),
       WATCHDOG_NOTICE);
-    // Create database
-    // Create user
-    // import template
-    // set admin user
+    $str = file_get_contents($school->settingsFile());
+    $str = str_replace("%SP_DB%", $db_name, $str);
+    $str = str_replace("%SP_USER%", $db_user, $str);
+    $str = str_replace("%SP_PASSWORD%", $db_pass, $str);
+    $str = str_replace("%SP_HOST%", $host, $str);
+    file_put_contents($school->settingsFile(), $str);
+    watchdog('schoolplatform', 'Written settings :file',
+      array(':file' => $school->settingsFile()),
+      WATCHDOG_NOTICE);
     $queue->deleteItem($item);
     $i ++;
   }
-  die('cton');
 }
 
 function _schoolplatform_admin_generate_pass($user){
@@ -253,6 +255,9 @@ function schoolplatform_sub_admin_page() {
 
 }
 
+/**
+ *
+ */
 Class School {
   public $url;
   public $machine_name;
@@ -286,9 +291,6 @@ Class School {
     if(!$res) {
       throw new Exception('Could not create settings file. <br>' . $this->settingsFile());
     }
-    $str = file_get_contents($dest);
-    //$str = str_replace("%prefix%", $this->prefix, $str);
-    file_put_contents($dest, $str);
     return $res;
   }
   function templateSettingsFile() {

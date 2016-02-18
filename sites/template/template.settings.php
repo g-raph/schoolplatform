@@ -5,10 +5,10 @@ $databases = array (
   array (
     'default' =>
     array (
-      'database' => 'stmartinus',
-      'username' => 'root',
-      'password' => 'root',
-      'host' => 'localhost',
+      'database' => '%SP_DB%',
+      'username' => '%SP_USER%',
+      'password' => '%SP_PASSWORD%',
+      'host' => '%SP_HOST%',
       'port' => '',
       'driver' => 'mysql',
       'prefix' => '',
