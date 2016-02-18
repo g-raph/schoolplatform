@@ -151,7 +151,7 @@ function schoolplatform_admin_add_school_submit($form, $form_state){
  */
 function schoolplatform_admin_preprocess_html($variables){
   global $base_url;
-  $main_domain = variable_get('schoolplatform_admin_main_url', '');
+  $main_domain = variable_get('schoolplatform_admin_main_url', 'http://schoolplatform.net');
   if ($base_url != $main_domain) {
     $nid = variable_get('schoolplatform_admin_domain_not_found_nid', 1);
     $url = $main_domain . '/node/' . $nid . '?from=' . urlencode( $base_url . $_SERVER['REQUEST_URI']);
